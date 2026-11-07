@@ -1,0 +1,21 @@
+{
+  "Home": {
+    "eyebrow": "FULL-STACK DEVELOPER · DIGITAL CRAFTSMAN",
+    "headline": "I build digital",
+    "highlight": "experiences.",
+    "intro": "I turn thoughtful ideas into accessible, reliable web products. From the first sketch to the final deployment, I care about every detail that makes technology feel human.",
+    "cta": "Explore my work",
+    "contact": "Let's talk",
+    "scroll": "A little more about what I do",
+    "selected": "A selection of recent work",
+    "work": "Things I've built",
+    "allProjects": "All projects",
+    "closing": "Have a good idea in mind?",
+    "closingText": "Let's make something useful, elegant, and memorable.",
+    "footer": "Designed with care. Built for the web.",
+    "about": "About",
+    "projects": "Projects"
+  },
+  "Projects": { "back": "Home", "eyebrow": "SELECTED WORK", "title": "Projects", "description": "A collection of product ideas and digital experiences, thoughtfully designed and carefully built." },
+  "About": { "back": "← Home", "eyebrow": "A LITTLE ABOUT ME", "title": "Curious by nature. Builder by choice.", "paragraph1": "I'm Moustfa, a full-stack developer who enjoys turning complex problems into useful, clear digital products.", "paragraph2": "I work across the stack—from thoughtful interfaces to dependable backend systems—with an emphasis on accessibility, performance, and maintainable code.", "focus": "What I care about", "focus1": "Accessible, inclusive interfaces", "focus2": "Fast, dependable web apps", "focus3": "Clear communication and craft" }
+}

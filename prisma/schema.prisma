@@ -1,0 +1,235 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role { ADMIN EDITOR VIEWER }
+enum PublishStatus { DRAFT SCHEDULED PUBLISHED ARCHIVED }
+enum MessageStatus { NEW READ REPLIED ARCHIVED }
+enum DeviceType { DESKTOP MOBILE TABLET OTHER }
+
+model User {
+  id               String     @id @default(cuid())
+  name             String?
+  email            String?    @unique
+  emailVerified    DateTime?
+  image            String?
+  passwordHash     String?
+  role             Role       @default(EDITOR)
+  twoFactorEnabled Boolean    @default(false)
+  twoFactorSecret  String?
+  accounts         Account[]
+  sessions         Session[]
+  auditLogs        AuditLog[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  @@id([identifier, token])
+}
+
+model Project {
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  titleAr      String
+  titleEn      String
+  summaryAr    String
+  summaryEn    String
+  contentAr    String?       @db.Text
+  contentEn    String?       @db.Text
+  coverImage   String?
+  liveUrl      String?
+  sourceUrl    String?
+  technologies String[]
+  featured     Boolean       @default(false)
+  sortOrder    Int           @default(0)
+  status       PublishStatus @default(DRAFT)
+  publishedAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  @@index([status, publishedAt])
+}
+
+model Post {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  titleAr     String
+  titleEn     String
+  excerptAr   String
+  excerptEn   String
+  contentAr   String        @db.Text
+  contentEn   String        @db.Text
+  coverImage  String?
+  tags        String[]
+  status      PublishStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  @@index([status, publishedAt])
+}
+
+model Skill {
+  id          String   @id @default(cuid())
+  nameAr      String
+  nameEn      String
+  category    String
+  proficiency Int
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Experience {
+  id             String   @id @default(cuid())
+  companyAr      String
+  companyEn      String
+  roleAr         String
+  roleEn         String
+  descriptionAr  String?  @db.Text
+  descriptionEn  String?  @db.Text
+  location       String?
+  startDate      DateTime
+  endDate        DateTime?
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Education {
+  id             String   @id @default(cuid())
+  institutionAr  String
+  institutionEn  String
+  degreeAr       String
+  degreeEn       String
+  descriptionAr  String?  @db.Text
+  descriptionEn  String?  @db.Text
+  startDate      DateTime?
+  endDate        DateTime?
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Service {
+  id             String   @id @default(cuid())
+  titleAr        String
+  titleEn        String
+  descriptionAr  String   @db.Text
+  descriptionEn  String   @db.Text
+  priceLabelAr   String?
+  priceLabelEn   String?
+  active         Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Testimonial {
+  id            String   @id @default(cuid())
+  clientName    String
+  clientTitleAr String?
+  clientTitleEn String?
+  contentAr     String   @db.Text
+  contentEn     String   @db.Text
+  image         String?
+  featured      Boolean  @default(false)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+}
+
+model Message {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  content   String        @db.Text
+  status    MessageStatus @default(NEW)
+  repliedAt DateTime?
+  createdAt DateTime      @default(now())
+  @@index([status, createdAt])
+}
+
+model AnalyticsEvent {
+  id          String     @id @default(cuid())
+  event       String     @default("page_view")
+  path        String
+  visitorHash String
+  sessionHash String?
+  referrer    String?
+  countryCode String?
+  device      DeviceType @default(OTHER)
+  createdAt   DateTime   @default(now())
+  @@index([createdAt])
+  @@index([path, createdAt])
+  @@index([visitorHash, createdAt])
+}
+
+model Settings {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  mimeType  String
+  sizeBytes Int
+  altAr     String?
+  altEn     String?
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  @@index([createdAt])
+  @@index([actorId, createdAt])
+}
+
+model LoginAttempt {
+  id         String   @id @default(cuid())
+  identifier String
+  succeeded  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  @@index([identifier, createdAt])
+}
